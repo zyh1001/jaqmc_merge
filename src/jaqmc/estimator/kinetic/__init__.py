@@ -4,8 +4,10 @@
 """Kinetic energy estimators for Euclidean and spherical geometries."""
 
 from ._common import LaplacianMode
+from .disk import DiskKinetic as DiskKinetic
 from .euclidean import EuclideanKinetic
 from .spherical import SphericalKinetic
+from .torus import TorusKinetic as TorusKinetic
 
 __all__ = [
     "EuclideanKinetic",

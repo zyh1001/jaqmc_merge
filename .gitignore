@@ -34,3 +34,5 @@ docs/contrib/packages/
 jupyter_execute/
 # Synced notebooks
 notebooks/
+
+integration_test_results/

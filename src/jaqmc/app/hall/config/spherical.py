@@ -28,3 +28,9 @@ class HallConfig:
     lz_center: float = 0.0
     lz_penalty: float = 0.0
     l2_penalty: float = 0.0
+
+
+HallSphericalConfig = HallConfig
+HallSphereConfig = HallConfig
+
+__all__ = ["HallConfig", "HallSphereConfig", "HallSphericalConfig"]
