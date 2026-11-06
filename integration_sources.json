@@ -2,7 +2,9 @@
   "upstream": {
     "repository": "https://github.com/bytedance/jaqmc",
     "branch": "main",
-    "commit": "d5f50497e2601dce4b0cde9eb96aa3a42281414b"
+    "commit": "d5f50497e2601dce4b0cde9eb96aa3a42281414b",
+    "archive": "tests/app/hall/reference/upstream-src.tar.gz",
+    "archive_sha256": "25f5ec23db2abf447dc3f91e99e8c69bf388193bad20890b39d39c1a2c123005"
   },
   "torus": {
     "repository": "https://github.com/Usercyk/jaqmc",
@@ -23,7 +25,9 @@
       "src/jaqmc/geometry/torus.py",
       "src/jaqmc/utils/torus.py",
       "src/jaqmc/estimator/fubini.py"
-    ]
+    ],
+    "archive": "tests/app/hall/reference/torus-src.tar.gz",
+    "archive_sha256": "ff295e3cab981bb4c99fe153bd812a1ed698a71c216a6f3f7f57f8a8126a2577"
   },
   "local": {
     "path": "/data/home/zyh/work/jaqmc",

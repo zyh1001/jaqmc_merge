@@ -145,8 +145,8 @@ exclude = ["src/jaqmc_legacy", "legacy_examples"]
 [tool.ruff.lint]
 # CPY and DOC rules are currently in preview
 preview = true
-# Allow en-dash (U+2013)
-allowed-confusables = ["–"]
+# Allow en-dash and native punctuation in Chinese reports.
+allowed-confusables = ["–", "，", "（", "）", "："]
 select = [
     "F", "E", "W", # pyflakes and pycodestyle
     "D", "DOC",    # pydocstyle and pydoclint

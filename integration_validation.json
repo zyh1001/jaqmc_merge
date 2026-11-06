@@ -3,7 +3,7 @@
   "upstream_commit": "d5f50497e2601dce4b0cde9eb96aa3a42281414b",
   "torus_commit": "8c418a4c4835c1e185e5bd4d3afcb46e168a97ba",
   "static_checks": {
-    "syntax_python_files": 57,
+    "syntax_python_files": 58,
     "ruff": "All checks passed!",
     "mypy": "Success: no issues found in 51 source files",
     "shell_syntax": "passed",
@@ -13,7 +13,10 @@
     "reference_archive_hash": "passed",
     "sphere_config_and_estimator_body_unchanged": true,
     "sphere_potential_unchanged": true,
-    "protected_upstream_code_unchanged": true
+    "protected_upstream_code_unchanged": true,
+    "compute_node_git_dependency": "removed from job script and test module",
+    "reference_archive_modules_verified": 40,
+    "parallel_test_input_sharding": "explicit device placement added; syntax and Ruff passed"
   },
   "files_sha256": {
     "src/jaqmc/app/hall/config/__init__.py": "00cf1b52f173a4ebd376c38ee8ea97390da68a0e455300c00cc5d3cf84f5d15c",
@@ -61,7 +64,7 @@
     "src/jaqmc/geometry/disk.py": "758a3089df91cd3efe0194696fb4c9148c4fa01ff5308f8d259748268d039b3a",
     "src/jaqmc/geometry/torus.py": "3dbae14275c263fc6f75e340c15e77ef7d1905dd15deb0bda7f751f99d6d4c7d",
     "src/jaqmc/utils/torus.py": "601c53f77daaeb6a101a4de9f312920c2a627c4b15878431abe07af26666ff3e",
-    "tests/app/hall/multigeometry_test.py": "9de8e04cceb857c4fa1aa94c505b0274c9e6cd151937e80b66ba34795ba4533b",
+    "tests/app/hall/multigeometry_test.py": "4afa685a71a1f51a44c4e035548e86bf6b4f4e111d3254724e672ca8cd959d04",
     "tests/app/hall/torus_mhpo_test.py": "9aaa7a64134038b2a206703629e4cd15e6b74651f51566bd39caf97afae0878b",
     "tests/app/hall/torus_one_rdm_test.py": "4e70dfcf97c4bc10fe7bbe0ec0bda27a338721dc2f369feab9292d35e797df45",
     "tests/app/hall/torus_sigma_mhpo_test.py": "7febfa2de5df3cd94986f9a1ed7c85169c53865d5197ae52e0e7d501eafa5463",
@@ -72,7 +75,8 @@
     "src/jaqmc/app/hall/workflow.py": "66e11562e1178f3854b780c4a0ebf8a117a18282e9c12073945214b59eaaffb6",
     "src/jaqmc/estimator/density/__init__.py": "c659a7eab7b4d915f93f65f1ae49990d52896054a8f8e653707a0bba89dcc3e2",
     "src/jaqmc/estimator/kinetic/__init__.py": "28de8073050e8430504b03db589d6bc90e35c503f1c2b8c4ab469e5d3421f791",
-    "src/jaqmc/wavefunction/output/orbital.py": "cf0e615dfc684d20cfd3faa54f37612775455f0dc4fa4555485e066492161752"
+    "src/jaqmc/wavefunction/output/orbital.py": "cf0e615dfc684d20cfd3faa54f37612775455f0dc4fa4555485e066492161752",
+    "scripts/integration_tests/prepare.py": "313db5ea332a500eae2435d3c5744e6cbeece8e549a2d37dcb3928c14894de54"
   },
   "runtime_tests": {
     "sphere": "pending_user_run",
@@ -80,8 +84,19 @@
     "disk": "pending_user_run",
     "estimators": "pending_user_run",
     "other": "pending_user_run",
-    "parallel": "pending_user_run"
+    "parallel": "pending_user_rerun"
   },
-  "numerical_tests_executed": false,
-  "cluster_jobs_submitted": false
+  "user_reported_failure": {
+    "suite": "parallel",
+    "exit_code": 1,
+    "reason": "Input coordinate sharding did not match shard_map in_specs",
+    "pytest_summary": {
+      "failed": 3,
+      "passed": 1,
+      "deselected": 32
+    },
+    "fix_status": "test input device placement added; numerical rerun pending"
+  },
+  "cluster_jobs_submitted_by_agent": false,
+  "numerical_tests_executed_by_agent": false
 }

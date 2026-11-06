@@ -12,8 +12,9 @@
 | 本地 `/data/home/zyh/work/jaqmc` | `204264eb43920be8e6363337871122ed3ee82705`，同时读取当前未提交的源码 |
 
 本地迁移范围只有 `src`。来源文件清单、原始文件摘要及原仓库状态保存在
-`integration_sources.json`。数值对照使用的本地原始模块压缩包位于
-`tests/app/hall/reference/local-src.tar.gz`。环面原始代码通过已获取的 Git 提交读取。
+`integration_sources.json`。数值对照使用的三个来源压缩包位于
+`tests/app/hall/reference/`，对应路径与摘要记录在来源清单中。
+计算节点直接读取这些快照，不需要安装 Git。
 整个操作不向远程仓库推送。
 
 ## 实现内容
@@ -69,7 +70,8 @@
 ## 测试环境与提交
 
 本仓库已建立独立的 `.venv`，使用上游锁定依赖和 CUDA 12 可选依赖。
-需要重建环境时执行下列准备脚本。它只安装环境并建立日志目录，不运行数值计算。
+需要重建环境时执行下列准备脚本。它安装环境、建立日志目录并记录当前版本，
+不运行数值计算。
 
 ```bash
 cd /data/home/zyh/work/jaqmc_merge
@@ -80,11 +82,13 @@ bash scripts/integration_tests/setup.sh
 时限一小时，内存采用分区默认值。分区及资源配置来自服务器配置与现有脚本，
 没有核实当前空闲资源。
 
+提交前在登录节点记录当前提交和工作区改动。该步骤需要登录节点上的 Git；
+计算节点只读取生成的版本记录。修改代码后重新提交时，也应更新这份记录。
 推荐分别提交，便于查看每项结果和重新运行：
 
 ```bash
 cd /data/home/zyh/work/jaqmc_merge
-mkdir -p integration_test_results
+.venv/bin/python scripts/integration_tests/prepare.py
 sbatch scripts/integration_tests/run.sh sphere
 sbatch scripts/integration_tests/run.sh torus
 sbatch scripts/integration_tests/run.sh disk
@@ -119,7 +123,8 @@ Slurm 原始日志为 `integration_test_results/slurm-<作业编号>.out` 和 `.
 每次测试的详细日志、测试报告及数值输出保存在
 `integration_test_results/<作业编号>-<测试参数>/`。
 
-日志包含实际目录、提交、运行环境、设备、主要配置、波函数与能量模块类型、
+日志包含实际目录、准备时记录的提交与工作区改动、运行环境、设备、主要配置、
+波函数与能量模块类型、
 关键数值和测试结论。所有必要测试成功时，脚本以零退出码结束并打印 `PASS`。
 任何必要测试失败时，返回非零退出码并打印 `FAIL`。
 
@@ -128,5 +133,7 @@ Slurm 原始日志为 `integration_test_results/slurm-<作业编号>.out` 和 `.
 圆盘对关联在没有密度支持的网格上保留未定义值，测试只对有定义的网格要求有限。
 
 静态检查结果记录在 `integration_validation.json`。
-尚未提交或运行任何集群作业，也未在登录节点执行训练、采样或能量测试。
+用户报告的并行测试作业 `3842921` 在测试开始前因计算节点找不到 Git 退出。
+相关调用已移至登录节点的准备步骤，修正后的测试待用户重新提交。
+本助手未提交作业，也未在登录节点执行训练、采样或能量测试。
 目前不能声称数值结果已经等价或集群运行已经通过。

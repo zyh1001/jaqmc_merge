@@ -31,8 +31,6 @@ result_dir="$PWD/integration_test_results/${SLURM_JOB_ID}-${suite}"
 mkdir -p "$result_dir"
 exec > >(tee "$result_dir/stdout.log") 2> >(tee "$result_dir/stderr.log" >&2)
 printf 'Suite: %s\nDirectory: %s\nPython: %s\n' "$suite" "$PWD" "$(command -v python)"
-git rev-parse HEAD
-git status --short
 python -m pytest -o addopts= -q -s tests/app/hall/multigeometry_test.py::test_environment_report
 
 run_tests() {

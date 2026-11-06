@@ -192,4 +192,5 @@ energy-corrections.md
 geometries.md
 Training <train.md>
 Evaluation <eval.md>
+../../disk_local_energy.md
 ```

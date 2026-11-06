@@ -37,7 +37,7 @@ class DiskJastrow(nn.Module):
 
         if r_ees_parallel.shape[0] > 0:
             alpha_par = self.param("ee_par", nn.initializers.ones, (1,))
-            beta_par = self.param("beta_par", nn.initializers.constant(0.25), (1,))
+            beta_par = self.param("beta_par", nn.initializers.constant(0.33333), (1,))
             a_p = jnp.squeeze(alpha_par)
             b_p = jnp.squeeze(beta_par)
             jastrow_ee_par = jnp.sum(-(b_p * a_p**2) / (a_p + r_ees_parallel))

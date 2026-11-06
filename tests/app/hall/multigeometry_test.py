@@ -7,7 +7,6 @@ import copy
 import dataclasses
 import json
 import os
-import subprocess
 import sys
 import tarfile
 import types
@@ -68,15 +67,8 @@ DISK_STATES = (
 def source_module(module_name, origin):
     path = "src/" + module_name.replace(".", "/") + ".py"
     manifest = json.loads((ROOT / "integration_sources.json").read_text())
-    if origin == "local":
-        with tarfile.open(ROOT / manifest["local"]["archive"]) as archive:
-            code = archive.extractfile(path).read().decode()
-    else:
-        code = subprocess.check_output(
-            ["git", "show", f"{manifest[origin]['commit']}:{path}"],
-            cwd=ROOT,
-            text=True,
-        )
+    with tarfile.open(ROOT / manifest[origin]["archive"]) as archive:
+        code = archive.extractfile(path).read().decode()
     name = module_name.rsplit(".", 1)[0] + "._source_" + module_name.rsplit(".", 1)[1]
     module = types.ModuleType(name)
     module.__package__ = name.rsplit(".", 1)[0]
@@ -301,6 +293,12 @@ def evaluate_pipeline(estimators, params, electrons):
         data=HallData(electrons=electrons), fields_with_batch=["electrons"]
     )
     state = pipeline.init(batched, jax.random.key(5))
+    shared = parallel_jax.make_sharding(parallel_jax.SHARE_PARTITION)
+    params = jax.device_put(params, shared)
+    state = jax.device_put(state, shared)
+    batched = jax.device_put(
+        batched, parallel_jax.make_sharding(batched.partition_spec)
+    )
     evaluate = parallel_jax.jit_sharded(
         pipeline.evaluate,
         in_specs=(
@@ -435,10 +433,12 @@ def test_environment_report():
     from importlib.metadata import version
 
     print("Working directory:", Path.cwd())
-    print(
-        "Commit:",
-        subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+    revision = json.loads(
+        (ROOT / "integration_test_results/prepared_revision.json").read_text()
     )
+    print("Prepared commit:", revision["commit"])
+    print("Revision recorded at:", revision["prepared_at"])
+    print("Working tree at preparation:", revision["working_tree"])
     print("Python:", sys.executable, sys.version)
     print(
         "Packages:",
