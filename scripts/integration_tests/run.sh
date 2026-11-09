@@ -45,7 +45,8 @@ run_suite() {
         sphere)
             run_tests sphere tests/app/hall/multigeometry_test.py -k 'sphere or geometry_config'
             run_tests sphere-upstream tests/app/hall/workflow_test.py \
-                tests/app/hall/wavefunction_test.py tests/app/hall/hamiltonian_test.py
+                tests/app/hall/wavefunction_test.py tests/app/hall/hamiltonian_test.py \
+                tests/app/hall/structure_test.py
             ;;
         torus)
             run_tests torus tests/app/hall/multigeometry_test.py -k torus

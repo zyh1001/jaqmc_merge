@@ -11,17 +11,17 @@ import pytest
 from jax import numpy as jnp
 
 from jaqmc.app.hall.data import HallData
-from jaqmc.app.hall.wavefunction import _pair_factor
-from jaqmc.app.hall.wavefunction._dressing import (
+from jaqmc.app.hall.wavefunction.sphere import _pair_factor
+from jaqmc.app.hall.wavefunction.sphere._dressing import (
     PAIR_SPINOR_MATRIX,
     Dressing,
     DressingConfig,
 )
-from jaqmc.app.hall.wavefunction._jastrow import SphericalCoulombJastrow
-from jaqmc.app.hall.wavefunction._pair_factor import log_pair_factor
-from jaqmc.app.hall.wavefunction.free import Free
-from jaqmc.app.hall.wavefunction.laughlin import Laughlin
-from jaqmc.app.hall.wavefunction.mhpo import MHPO
+from jaqmc.app.hall.wavefunction.sphere._jastrow import SphericalCoulombJastrow
+from jaqmc.app.hall.wavefunction.sphere._pair_factor import log_pair_factor
+from jaqmc.app.hall.wavefunction.sphere.free import Free
+from jaqmc.app.hall.wavefunction.sphere.laughlin import Laughlin
+from jaqmc.app.hall.wavefunction.sphere.mhpo import MHPO
 from jaqmc.estimator.angular_momentum import SphericalAngularMomentum
 from jaqmc.estimator.kinetic import SphericalKinetic
 from jaqmc.geometry.sphere import cartesian_from_spinor, spinor_coordinates_from_angles

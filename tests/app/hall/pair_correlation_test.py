@@ -9,7 +9,7 @@ from jax import numpy as jnp
 
 from jaqmc.app.hall.config import HallConfig
 from jaqmc.app.hall.data import HallData, data_init
-from jaqmc.app.hall.estimator.pair_correlation import PairCorrelation
+from jaqmc.app.hall.estimator.sphere.pair_correlation import PairCorrelation
 
 KEY = jax.random.key(0)
 

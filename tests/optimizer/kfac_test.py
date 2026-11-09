@@ -11,8 +11,8 @@ import kfac_jax
 import pytest
 
 from jaqmc.app.hall.data import HallData
-from jaqmc.app.hall.wavefunction._dressing import DressingConfig
-from jaqmc.app.hall.wavefunction.mhpo import MHPO
+from jaqmc.app.hall.wavefunction.sphere._dressing import DressingConfig
+from jaqmc.app.hall.wavefunction.sphere.mhpo import MHPO
 from jaqmc.app.molecule.data import MoleculeData
 from jaqmc.app.molecule.wavefunction.ferminet import FermiNetWavefunction
 from jaqmc.app.molecule.wavefunction.lapnet import LapNetWavefunction

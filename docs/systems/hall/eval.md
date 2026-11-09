@@ -11,6 +11,9 @@ overrides. For training config, see <project:train.md>.
 Root-level runtime keys such as `logging.*`, `jax.*`, and `distributed.*` are
 shared by all commands. See <project:../../guide/runtime-configuration.md>.
 
+For the disk evaluation submission script, see
+[Disk evaluation jobs](disk-evaluation.md).
+
 ## Workflow (`workflow.*`)
 
 These keys control evaluation-wide settings and checkpoint loading.
@@ -41,7 +44,7 @@ analytic module with `wf.module`. MHPO options match the
 ### Laughlin options (`wf.*`)
 
 ```{eval-rst}
-.. config-defaults:: jaqmc.app.hall.wavefunction.laughlin.Laughlin
+.. config-defaults:: jaqmc.app.hall.wavefunction.sphere.laughlin.SphereLaughlin
    :prefix: wf
    :scope: Laughlin
 ```
@@ -49,7 +52,7 @@ analytic module with `wf.module`. MHPO options match the
 ### Free options (`wf.*`)
 
 ```{eval-rst}
-.. config-defaults:: jaqmc.app.hall.wavefunction.free.Free
+.. config-defaults:: jaqmc.app.hall.wavefunction.sphere.free.SphereFree
    :prefix: wf
    :scope: Free
 ```
@@ -207,7 +210,7 @@ count from the digest key `pair_correlation:n_steps` — to obtain the
 pair correlation function $g(\theta)$.
 
 ```{eval-rst}
-.. config-defaults:: jaqmc.app.hall.estimator.pair_correlation.PairCorrelation
+.. config-defaults:: jaqmc.app.hall.estimator.sphere.pair_correlation.SpherePairCorrelation
    :prefix: estimators.pair_correlation
 ```
 
@@ -218,6 +221,6 @@ basis. The trace is the number of electrons on the lowest Landau level,
 $N_\text{LLL}$.
 
 ```{eval-rst}
-.. config-defaults:: jaqmc.app.hall.estimator.one_rdm.OneRDM
+.. config-defaults:: jaqmc.app.hall.estimator.sphere.one_rdm.SphereOneRDM
    :prefix: estimators.one_rdm
 ```

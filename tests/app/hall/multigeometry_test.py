@@ -97,7 +97,9 @@ def run_config(tmp_path, geometry, module=None):
         "train": {"run": {"iterations": 2, "burn_in": 2, "save_step_interval": 1}},
     }
     if geometry != "sphere":
-        config["system"]["module"] = f"jaqmc.app.hall.config.{geometry}"
+        config["system"]["module"] = (
+            f"jaqmc.app.hall.config:Hall{geometry.capitalize()}Config"
+        )
     if module:
         config["wf"]["module"] = f"jaqmc.app.hall.wavefunction.{geometry}.{module}"
     if geometry == "disk":
@@ -174,7 +176,7 @@ def test_source_wavefunctions_and_hamiltonians(geometry, module, options):
     cfg = ConfigManager(
         {
             "system": {
-                "module": f"jaqmc.app.hall.config.{geometry}",
+                "module": f"jaqmc.app.hall.config:Hall{geometry.capitalize()}Config",
                 "nspins": [nelec, 0],
                 "flux": 3 * nelec,
             },
@@ -266,7 +268,7 @@ def test_geometry_config_roundtrip():
         assert restored.flux == cfg.flux
         assert restored.nspins == cfg.nspins
     assert resolve_object("jaqmc.app.hall.config:HallConfig") is HallConfig
-    assert resolve_object("jaqmc.app.hall.config.disk") is HallDiskConfig
+    assert resolve_object("jaqmc.app.hall.config:HallDiskConfig") is HallDiskConfig
     assert resolve_object("jaqmc.app.hall.config:HallTorusConfig") is HallTorusConfig
     assert resolve_object("jaqmc.estimator.kinetic").__name__ == "EuclideanKinetic"
 
@@ -371,7 +373,7 @@ def test_disk_observable_workflow(tmp_path, observable):
     config = {
         "workflow": {"save_path": str(tmp_path), "batch_size": 32, "seed": 9},
         "system": {
-            "module": "jaqmc.app.hall.config.disk",
+            "module": "jaqmc.app.hall.config:HallDiskConfig",
             "flux": 6,
             "nspins": [2, 0],
             "interaction_strength": 0.5,

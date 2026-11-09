@@ -38,6 +38,7 @@ import math
 from collections.abc import Mapping
 from typing import Any
 
+import numpy as np
 from jax import numpy as jnp
 
 from jaqmc.array_types import PRNGKey
@@ -183,38 +184,56 @@ class DiskPairCorrelation(Estimator):
         r"""Return :math:`g`, its density factors, and grid metadata.
 
         Raises:
-            ValueError: If no evaluation steps or samples have been completed.
+            ValueError: If no steps or samples have completed, or counts are invalid.
         """
         if n_steps <= 0:
             raise ValueError("n_steps must be positive")
 
         bin_width = 2 * self.max_r / self.bins
         bin_area = bin_width**2
-        sample_count = jnp.sum(state["sample_counts"])
-        if float(sample_count) <= 0:
+        # Finalization runs on the host. Undefined bins deliberately contain NaN.
+        counts = {
+            key: np.asarray(state[key], dtype=np.float64)
+            for key in (
+                "pair_counts",
+                "density_counts",
+                "reference_counts",
+                "sample_counts",
+                "electron_counts",
+            )
+        }
+        if any(
+            not np.isfinite(value).all() or (value < 0).any()
+            for value in counts.values()
+        ):
+            raise ValueError("pair-correlation counts must be finite and nonnegative")
+        sample_count = float(np.sum(counts["sample_counts"]))
+        if sample_count <= 0:
             raise ValueError("state must contain at least one sampled configuration")
 
-        pair_counts = jnp.sum(state["pair_counts"], axis=0)
-        density_counts = jnp.sum(state["density_counts"], axis=0)
-        reference_count = jnp.sum(state["reference_counts"])
-        electron_count = jnp.sum(state["electron_counts"])
+        pair_counts = np.sum(counts["pair_counts"], axis=0)
+        density_counts = np.sum(counts["density_counts"], axis=0)
+        reference_count = float(np.sum(counts["reference_counts"]))
+        electron_count = float(np.sum(counts["electron_counts"]))
 
         rho2 = pair_counts / (sample_count * self._reference_area * bin_area)
         rho1_target = density_counts / (sample_count * bin_area)
         rho1_reference = reference_count / (sample_count * self._reference_area)
         denominator = rho1_reference * rho1_target
         valid = denominator > 0
-        g = jnp.where(valid, rho2 / jnp.where(valid, denominator, 1.0), jnp.nan)
+        g = np.full_like(rho2, np.nan)
+        np.divide(rho2, denominator, out=g, where=valid)
 
         # In a fixed-N finite system the standard reduced correlation above
         # approaches (N-1)/N for independent particles.  Also expose the
         # conventional finite-N corrected version whose independent-particle
         # baseline is exactly one.
         electron_number = electron_count / sample_count
-        finite_n_factor = electron_number / (electron_number - 1)
-        g_finite_n = jnp.where(electron_number > 1, finite_n_factor * g, jnp.nan)
+        g_finite_n = np.full_like(g, np.nan)
+        if electron_number > 1:
+            g_finite_n = electron_number / (electron_number - 1) * g
 
-        centers = jnp.linspace(
+        centers = np.linspace(
             -self.max_r + bin_width / 2,
             self.max_r - bin_width / 2,
             self.bins,

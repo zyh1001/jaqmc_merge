@@ -1,7 +1,7 @@
 # Copyright (c) 2026 ByteDance Ltd. and/or its affiliates
 # SPDX-License-Identifier: Apache-2.0
 
-"""Configuration and lattice periods for a magnetic torus."""
+"""System configurations for sphere, disk and torus Hall applications."""
 
 from enum import StrEnum
 
@@ -10,7 +10,16 @@ from serde.core import field as serde_field
 
 from jaqmc.utils.config import configurable_dataclass
 
-__all__ = ["HallTorusConfig"]
+__all__ = ["HallSphereConfig"]
+__all__ += [
+    "HallConfig",
+    "HallDiskConfig",
+    "HallGeometryConfig",
+    "HallSphericalConfig",
+    "HallSystemConfig",
+    "HallTorusConfig",
+    "InteractionType",
+]
 
 
 def _serialize_complex(value: complex) -> list[float]:
@@ -123,3 +132,57 @@ class HallTorusConfig(HallGeometryConfig):
     def area(self) -> jnp.ndarray:
         r"""Return the torus area in units of :math:`\ell_B^2`."""
         return self.l1 * self.l2.imag
+
+
+@configurable_dataclass
+class HallSphereConfig(HallGeometryConfig):
+    r"""Configuration for a quantum Hall system on the Haldane sphere.
+
+    Args:
+        flux: Magnetic flux :math:`2Q` (positive integer).
+        nspins: ``(n_up, n_down)`` electron counts.
+        radius: Sphere radius. Defaults to :math:`\sqrt{Q}`.
+        interaction_strength: Scaling factor for the Coulomb interaction.
+        lz_center: Target :math:`L_z` for the penalty method.
+        lz_penalty: Penalty strength for
+            :math:`(L_z - L_{z,0})^2`.
+        l2_penalty: Penalty strength for :math:`L^2`.
+    """
+
+    radius: float | None = None
+    lz_center: float = 0.0
+    lz_penalty: float = 0.0
+    l2_penalty: float = 0.0
+
+
+@configurable_dataclass
+class HallDiskConfig(HallGeometryConfig):
+    r"""Configuration for a quantum Hall system on a disk.
+
+    Args:
+        flux: Magnetic flux :math:`Q` (positive integer).
+        nspins: ``(n_up, n_down)`` electron counts.
+        radius: Disk radius. Defaults to :math:`\sqrt{2Q}`.
+        d: Separation from the neutralizing background disk.
+        interaction_type: Interaction potential form.
+        interaction_strength: Scaling factor for the potential energy.
+        lz_center: Target :math:`L_z` for the penalty method.
+        lz_penalty: Penalty strength for
+            :math:`(L_z - L_{z,0})^2`.
+        l2_penalty: Penalty strength for :math:`L_z^2` on the disk.
+    """
+
+    flux: int = 18
+    nspins: tuple[int, int] = (6, 0)
+    radius: float | None = None
+    d: float | int = 0.1
+    num_orbitals: int | None = None
+    lz_center: float = 0.0
+    lz_penalty: float = 0.0
+    l2_penalty: float = 0.0
+    lz_var_penalty: float = 0.0
+
+
+HallConfig = HallSphereConfig
+HallSphericalConfig = HallSphereConfig
+type HallSystemConfig = HallSphereConfig | HallDiskConfig | HallTorusConfig

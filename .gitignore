@@ -36,3 +36,19 @@ jupyter_execute/
 notebooks/
 
 integration_test_results/
+
+# Cluster logs, training data and generated reports
+*.err
+*.errs
+*.out
+/.cache/
+/data/
+/Runs/
+/reports/
+/logs/
+/checkpoints/
+/*_ckpt_*.npz
+/*.npz
+/*.npy
+/*.h5
+/tatus --short

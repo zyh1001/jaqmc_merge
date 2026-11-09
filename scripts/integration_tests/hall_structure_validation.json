@@ -1,0 +1,38 @@
+{
+  "validation": "static-only",
+  "python_syntax_files": 88,
+  "static_hall_imports": 137,
+  "unchanged_sphere_computation_ast": [
+    "src/jaqmc/app/hall/wavefunction/sphere/mhpo.py",
+    "src/jaqmc/app/hall/wavefunction/sphere/laughlin.py",
+    "src/jaqmc/app/hall/wavefunction/sphere/free.py",
+    "src/jaqmc/app/hall/wavefunction/sphere/_backbone.py",
+    "src/jaqmc/app/hall/wavefunction/sphere/_dressing.py",
+    "src/jaqmc/app/hall/wavefunction/sphere/_jastrow.py",
+    "src/jaqmc/app/hall/wavefunction/sphere/_pair_factor.py",
+    "src/jaqmc/app/hall/estimator/sphere/one_rdm.py",
+    "src/jaqmc/app/hall/estimator/sphere/pair_correlation.py",
+    "src/jaqmc/app/hall/estimator/sphere/penalized_loss.py"
+  ],
+  "disk_and_torus_physics_preserved": true,
+  "independent_user_edits_preserved": [
+    "src/jaqmc/app/hall/wavefunction/disk/jastrow.py",
+    "src/jaqmc/optimizer/kfac/tags.py",
+    "src/jaqmc/app/hall/estimator/disk/pair_correlation.py",
+    "src/jaqmc/app/hall/estimator/disk/wavefunction_scan.py"
+  ],
+  "configuration_defaults_preserved": true,
+  "shell_syntax_files": [
+    "scripts/integration_tests/hall_structure.sh",
+    "scripts/integration_tests/run.sh",
+    "train_disk.sh"
+  ],
+  "runtime_dry_runs": "pending user submission",
+  "training": "pending user submission",
+  "evaluation": "pending user submission",
+  "numerical_regressions": "pending user submission",
+  "changed_python_files": 43,
+  "ruff": "passed",
+  "ruff_format": "passed",
+  "git_diff_whitespace": "passed"
+}

@@ -6,6 +6,8 @@
 from flax import linen as nn
 from jax import numpy as jnp
 
+from jaqmc.optimizer.kfac.tags import register_first_order_parameter
+
 
 class DiskJastrow(nn.Module):
     """Disk chord-distance Jastrow factor.
@@ -41,6 +43,7 @@ class DiskJastrow(nn.Module):
             a_p = jnp.squeeze(alpha_par)
             b_p = jnp.squeeze(beta_par)
             jastrow_ee_par = jnp.sum(-(b_p * a_p**2) / (a_p + r_ees_parallel))
+            jastrow_ee_par = register_first_order_parameter(jastrow_ee_par,alpha_par, beta_par)
         else:
             jastrow_ee_par = jnp.asarray(0.0)
 
@@ -50,6 +53,7 @@ class DiskJastrow(nn.Module):
             a_a = jnp.squeeze(alpha_anti)
             b_a = jnp.squeeze(beta_anti)
             jastrow_ee_anti = jnp.sum(-(b_a * a_a**2) / (a_a + r_ees[0][1]))
+            jastrow_ee_anti = register_first_order_parameter(jastrow_ee_anti, alpha_anti, beta_anti)
         else:
             jastrow_ee_anti = jnp.asarray(0.0)
 

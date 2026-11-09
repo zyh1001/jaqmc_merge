@@ -6,7 +6,7 @@
 import jax
 from jax import numpy as jnp
 
-from jaqmc.app.hall.config import HallDiskConfig, HallSystemConfig, HallTorusConfig
+from jaqmc.app.hall.config import HallDiskConfig, HallGeometryConfig, HallTorusConfig
 from jaqmc.array_types import PRNGKey
 from jaqmc.data import BatchedData, Data
 
@@ -27,7 +27,7 @@ class HallData(Data):
 
 
 def data_init(
-    config: HallSystemConfig, size: int, rngs: PRNGKey
+    config: HallGeometryConfig, size: int, rngs: PRNGKey
 ) -> BatchedData[HallData]:
     """Create uniform initial samples in the configured geometry.
 

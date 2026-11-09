@@ -7,7 +7,7 @@ potential energy and sampling proposal.
 
 ```bash
 # Disk training
-jaqmc hall train system.module=jaqmc.app.hall.config.disk \
+jaqmc hall train system.module=jaqmc.app.hall.config:HallDiskConfig \
   system.nspins='[6,0]' system.flux=18 system.interaction_strength=1 \
   workflow.save_path=runs/disk
 
@@ -58,7 +58,7 @@ energy and angular momentum, and its `kappa` must equal
 `system.interaction_strength`.
 
 ```bash
-jaqmc hall evaluate system.module=jaqmc.app.hall.config.disk \
+jaqmc hall evaluate system.module=jaqmc.app.hall.config:HallDiskConfig \
   workflow.source_path=runs/disk workflow.save_path=runs/disk-observables \
   estimators.enabled.structure_factor=true estimators.enabled.short_range=true
 ```
@@ -88,7 +88,7 @@ Parameter-free states may also omit `workflow.source_path`. The digest is
 Torus checkpoint comparisons retain their importance-sampling estimator:
 
 ```bash
-jaqmc hall evaluate system.module=jaqmc.app.hall.config.torus \
+jaqmc hall evaluate system.module=jaqmc.app.hall.config:HallTorusConfig \
   workflow.source_path=runs/torus workflow.save_path=runs/torus-overlap \
   estimators.enabled.fubini=true
 ```

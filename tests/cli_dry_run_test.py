@@ -492,6 +492,33 @@ estimators:
 ]
 
 
+for geometry, flux, tau in (
+    ("sphere", 3, None),
+    ("disk", 6, None),
+    ("torus", 6, "[0.0,1.0]"),
+    ("torus", 6, "[0.5,0.8660254037844386]"),
+):
+    options = (
+        f"system.module=jaqmc.app.hall.config:Hall{geometry.capitalize()}Config",
+        "system.nspins=[2,0]",
+        f"system.flux={flux}",
+        "system.interaction_strength=1",
+        f"wf.module=jaqmc.app.hall.wavefunction.{geometry}.mhpo",
+        "wf.num_heads=1",
+        "wf.heads_dim=8",
+        "wf.num_layers=1",
+        "workflow.batch_size=32",
+        "train.run.iterations=100",
+    )
+    if tau is not None:
+        options += (f"system.tau={tau}",)
+    if geometry == "disk":
+        options += ("system.num_orbitals=6",)
+    CASES.append(
+        CliDryRunCase(f"hall_{geometry}_{tau}_structure", "hall", "train", options)
+    )
+
+
 @pytest.mark.parametrize("case", CASES, ids=lambda case: case.id)
 def test_cli_command_dry_run(
     case: CliDryRunCase, tmp_path: Path, monkeypatch: pytest.MonkeyPatch

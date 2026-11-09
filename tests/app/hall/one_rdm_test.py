@@ -11,7 +11,7 @@ import pytest
 from jax import numpy as jnp
 
 from jaqmc.app.hall.data import HallData
-from jaqmc.app.hall.estimator.one_rdm import OneRDM, make_monopole_harm
+from jaqmc.app.hall.estimator.sphere.one_rdm import OneRDM, make_monopole_harm
 from jaqmc.data import BatchedData
 
 

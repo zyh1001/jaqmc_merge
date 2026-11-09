@@ -10,7 +10,7 @@ from jax import numpy as jnp
 
 from jaqmc.app.hall.config import HallConfig
 from jaqmc.app.hall.data import HallData, data_init
-from jaqmc.app.hall.estimator.penalized_loss import PenalizedLoss
+from jaqmc.app.hall.estimator.sphere.penalized_loss import PenalizedLoss
 from jaqmc.app.hall.hamiltonian import SpherePotential
 
 

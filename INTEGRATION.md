@@ -48,7 +48,7 @@
 | 用途 | 入口 |
 | --- | --- |
 | 球面默认配置 | 不需要指定几何，原命令继续使用 |
-| 圆盘配置 | `system.module=jaqmc.app.hall.config.disk` |
+| 圆盘配置 | `system.module=jaqmc.app.hall.config:HallDiskConfig` |
 | 环面配置 | `system.module=jaqmc.app.hall.config:HallTorusConfig` |
 | 圆盘重叠评估 | `jaqmc hall overlap` |
 | 环面检查点重叠比较 | 普通评估中设置 `estimators.enabled.fubini=true` |
@@ -137,3 +137,33 @@ Slurm 原始日志为 `integration_test_results/slurm-<作业编号>.out` 和 `.
 相关调用已移至登录节点的准备步骤，修正后的测试待用户重新提交。
 本助手未提交作业，也未在登录节点执行训练、采样或能量测试。
 目前不能声称数值结果已经等价或集群运行已经通过。
+
+
+## 三几何接口与短训练检查
+
+配置统一在单个 `config.py` 中，通过 `HallSphereConfig`、`HallDiskConfig`、
+`HallTorusConfig` 选择几何。默认采用球面。旧的 `config.disk` 等子模块入口
+需要替换为 `jaqmc.app.hall.config:HallDiskConfig` 等显式入口。
+
+新增脚本 `scripts/integration_tests/hall_structure.sh` 支持 `--mode dry-run`、
+`--mode train` 和 `--mode all`，覆盖球面、圆盘、方形环面及六角晶格环面。
+默认均为两个电子、三分之一填充对应配置、相互作用强度 1、100 步训练。
+
+```bash
+sbatch scripts/integration_tests/hall_structure.sh --mode dry-run
+sbatch scripts/integration_tests/hall_structure.sh --mode train
+sbatch scripts/integration_tests/hall_structure.sh --mode all
+```
+
+指定几何及覆盖配置：
+
+```bash
+sbatch scripts/integration_tests/hall_structure.sh --mode all --geometry torus-hex workflow.batch_size=64
+```
+
+脚本会检查训练更新、数值有限性、检查点保存及恢复评估。结果按作业编号写入
+`integration_test_results`，具体入口替换表和结果说明见
+`docs/systems/hall/structure-tests.md`。
+
+本次仅完成静态检查，没有提交作业。配置试运行、训练、恢复评估和数值回归
+均待用户提交运行。

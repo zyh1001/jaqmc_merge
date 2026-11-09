@@ -40,7 +40,7 @@ class HallOverlapWorkflow(EvaluationWorkflow):
     config: DiskOverlapConfig
 
     def __init__(self, cfg: ConfigManager) -> None:
-        cfg.use_preset({"system": {"module": "jaqmc.app.hall.config.disk"}})
+        cfg.use_preset({"system": {"module": "jaqmc.app.hall.config:HallDiskConfig"}})
         super().__init__(cfg)
         system, wf = configure_system(cfg)
         if not isinstance(system, HallDiskConfig):

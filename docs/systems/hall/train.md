@@ -33,7 +33,7 @@ Defines the quantum Hall system on the Haldane sphere.
 See <project:index.md> for physics background and usage examples.
 
 ```{eval-rst}
-.. config-defaults:: jaqmc.app.hall.config.HallConfig
+.. config-defaults:: jaqmc.app.hall.config.HallSphereConfig
    :prefix: system
 ```
 
@@ -53,7 +53,7 @@ See <project:index.md> for background on each architecture.
 ### MHPO options (`wf.*`)
 
 ```{eval-rst}
-.. config-defaults:: jaqmc.app.hall.wavefunction.mhpo.MHPO
+.. config-defaults:: jaqmc.app.hall.wavefunction.sphere.mhpo.SphereMHPO
    :prefix: wf
    :scope: MHPO
 ```

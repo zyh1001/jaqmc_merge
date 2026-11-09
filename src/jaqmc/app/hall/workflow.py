@@ -35,9 +35,14 @@ from jaqmc.workflow.stage.evaluation import EvaluationWorkStage
 from jaqmc.workflow.stage.vmc import VMCWorkStage
 from jaqmc.workflow.vmc import VMCWorkflow
 
-from .config import HallConfig, HallDiskConfig, HallSystemConfig, HallTorusConfig
+from .config import (
+    HallDiskConfig,
+    HallGeometryConfig,
+    HallSphereConfig,
+    HallTorusConfig,
+)
 from .data import data_init
-from .estimator import OneRDM, PairCorrelation, PenalizedLoss
+from .estimator import SphereOneRDM, SpherePairCorrelation, SpherePenalizedLoss
 from .estimator.disk import (
     DiskEdgeGreenDirect,
     DiskOneRDM,
@@ -82,15 +87,8 @@ class HallTrainWorkflow(VMCWorkflow):
 
         self.data_init = partial(data_init, system_config)
 
-        has_penalties = not isinstance(system_config, HallTorusConfig) and bool(
-            system_config.lz_penalty
-            or system_config.l2_penalty
-            or (
-                isinstance(system_config, HallDiskConfig)
-                and system_config.lz_var_penalty
-            )
-        )
-        loss_key = "penalized_loss" if has_penalties else "total_energy"
+        loss_key = get_loss_key(system_config)
+
         if isinstance(system_config, (HallDiskConfig, HallTorusConfig)):
             fields = (
                 "pmove:.2f,energy=total_energy_real:.4f,"
@@ -140,7 +138,7 @@ class HallEvalWorkflow(EvaluationWorkflow):
                 "and its overlap sampling distribution."
             )
         if cfg.get("estimators.enabled.angular_projection", False):
-            if not isinstance(system_config, HallConfig):
+            if not isinstance(system_config, HallSphereConfig):
                 raise ValueError("angular_projection is only defined for Sphere.")
             if not cfg.get("estimators.enabled.energy", True):
                 raise ValueError(
@@ -163,16 +161,35 @@ class HallEvalWorkflow(EvaluationWorkflow):
         self.evaluation_stage = stage
 
 
+def get_loss_key(system_config: HallGeometryConfig) -> str:
+    """Select total energy or the geometry's angular-momentum penalty.
+
+    Returns:
+        The loss statistic consumed by the training gradient estimator.
+
+    Raises:
+        NotImplementedError: If the geometry is unsupported.
+    """
+    if isinstance(system_config, HallTorusConfig):
+        return "total_energy"
+    if isinstance(system_config, (HallSphereConfig, HallDiskConfig)):
+        has_penalties = bool(system_config.lz_penalty or system_config.l2_penalty)
+        if isinstance(system_config, HallDiskConfig):
+            has_penalties = has_penalties or bool(system_config.lz_var_penalty)
+        return "penalized_loss" if has_penalties else "total_energy"
+    raise NotImplementedError(f"Unsupported Hall geometry: {type(system_config)}")
+
+
 def configure_system(
     cfg: ConfigManagerLike,
-) -> tuple[HallSystemConfig, Any]:
+) -> tuple[HallGeometryConfig, Any]:
     """Build the shared system objects for quantum Hall workflows.
 
     Returns:
         Tuple of (system_config, wavefunction).
     """
-    system_config: HallSystemConfig = cfg.get_module(
-        "system", "jaqmc.app.hall.config:HallConfig"
+    system_config: HallGeometryConfig = cfg.get_module(
+        "system", "jaqmc.app.hall.config:HallSphereConfig"
     )
 
     if isinstance(system_config, HallDiskConfig):
@@ -192,37 +209,42 @@ def configure_system(
         wf.tau = system_config.tau
         return system_config, wf
 
-    wf = cfg.get_module("wf", "jaqmc.app.hall.wavefunction.mhpo")
-    wf.nspins = system_config.nspins
-    wf.monopole_strength = system_config.flux / 2
-    wf.flux = system_config.flux
-    wf.interaction_strength = system_config.interaction_strength
-    wf.radius = (
-        system_config.radius
-        if system_config.radius is not None
-        else float(jnp.sqrt(system_config.flux / 2))
-    )
+    if isinstance(system_config, HallSphereConfig):
+        wf = cfg.get_module("wf", "jaqmc.app.hall.wavefunction.sphere.mhpo")
+        wf.nspins = system_config.nspins
+        wf.monopole_strength = system_config.flux / 2
+        wf.flux = system_config.flux
+        wf.interaction_strength = system_config.interaction_strength
+        wf.radius = (
+            system_config.radius
+            if system_config.radius is not None
+            else float(jnp.sqrt(system_config.flux / 2))
+        )
 
-    return system_config, wf
+        return system_config, wf
+
+    raise NotImplementedError(f"Unsupported Hall geometry: {type(system_config)}")
 
 
 def make_estimators(
     cfg: ConfigManagerLike,
     wf: Any,
-    system_config: HallSystemConfig,
+    system_config: HallGeometryConfig,
     always_enable_energy: bool = False,
 ) -> dict[str, EstimatorLike]:
     if isinstance(system_config, HallDiskConfig):
         return make_disk_estimators(cfg, wf, system_config, always_enable_energy)
     if isinstance(system_config, HallTorusConfig):
         return make_torus_estimators(cfg, wf, system_config, always_enable_energy)
-    return make_sphere_estimators(cfg, wf, system_config, always_enable_energy)
+    if isinstance(system_config, HallSphereConfig):
+        return make_sphere_estimators(cfg, wf, system_config, always_enable_energy)
+    raise NotImplementedError(f"Unsupported Hall geometry: {type(system_config)}")
 
 
 def make_sphere_estimators(
     cfg: ConfigManagerLike,
     wf: Any,
-    system_config: HallConfig,
+    system_config: HallSphereConfig,
     always_enable_energy: bool = False,
 ) -> dict[str, EstimatorLike]:
     estimators: dict[str, EstimatorLike] = {}
@@ -272,7 +294,7 @@ def make_sphere_estimators(
         )
 
     if has_penalties:
-        estimators["penalty"] = PenalizedLoss(
+        estimators["penalty"] = SpherePenalizedLoss(
             lz_center=system_config.lz_center,
             lz_penalty=system_config.lz_penalty,
             l2_penalty=system_config.l2_penalty,
@@ -287,13 +309,13 @@ def make_sphere_estimators(
     if cfg.get("estimators.enabled.pair_correlation", False):
         estimators["pair_correlation"] = cfg.get(
             "estimators.pair_correlation",
-            PairCorrelation(),
+            SpherePairCorrelation(),
         )
 
     if cfg.get("estimators.enabled.one_rdm", False):
         estimators["one_rdm"] = cfg.get(
             "estimators.one_rdm",
-            OneRDM(flux=system_config.flux, f_log_psi=wf.logpsi),
+            SphereOneRDM(flux=system_config.flux, f_log_psi=wf.logpsi),
         )
 
     return estimators
@@ -446,7 +468,10 @@ def make_torus_estimators(
 
 
 def make_sampler(
-    cfg: ConfigManagerLike, system_config: HallSystemConfig, *, evaluation: bool = False
+    cfg: ConfigManagerLike,
+    system_config: HallGeometryConfig,
+    *,
+    evaluation: bool = False,
 ) -> MCMCSampler:
     """Select the proposal and, for edge correlations, the pinned sampler.
 
@@ -469,8 +494,10 @@ def make_sampler(
             )
         else:
             default = MCMCSampler(sampling_proposal=disk_proposal)
-    else:
+    elif isinstance(system_config, HallSphereConfig):
         default = MCMCSampler(sampling_proposal=sphere_proposal)
+    else:
+        raise NotImplementedError(f"Unsupported Hall geometry: {type(system_config)}")
     return cfg.get("sampler", default)
 
 

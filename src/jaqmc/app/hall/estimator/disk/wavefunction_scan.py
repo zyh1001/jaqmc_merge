@@ -249,11 +249,16 @@ class DiskWavefunctionScan(Estimator):
         points = jnp.stack([grid_x.ravel(), grid_y.ravel()], axis=-1)
         logpsi = self._evaluate_points(params, data, points).reshape(self.n_y, self.n_x)
         radial_log_abs, radial_log_derivative = self._evaluate_radial(params, data)
-        return (
-            jnp.real(logpsi),
-            jnp.mod(jnp.imag(logpsi), 2 * jnp.pi),
-            radial_log_abs,
-            radial_log_derivative,
+        # Every device scans the same selected background. Return replicated arrays
+        # so conditional branches match the replicated estimator state.
+        return jax.tree.map(
+            parallel_jax.pmean,
+            (
+                jnp.real(logpsi),
+                jnp.mod(jnp.imag(logpsi), 2 * jnp.pi),
+                radial_log_abs,
+                radial_log_derivative,
+            ),
         )
 
     @staticmethod
@@ -337,11 +342,11 @@ class DiskWavefunctionScan(Estimator):
         # Gather only each device's best candidate, then select a common winner.
         candidate_scores = parallel_jax.all_gather(candidate_score[None])
         winner = jnp.argmax(candidate_scores)
-        candidate_score = candidate_scores[winner]
+        candidate_score = parallel_jax.pmean(candidate_scores[winner])
         candidate_data = jax.tree.map(
             lambda value: parallel_jax.all_gather(value[None])[winner], candidate_data
         )
-        candidate_configuration = candidate_data[self.data_field]
+        candidate_configuration = parallel_jax.pmean(candidate_data[self.data_field])
         is_better = candidate_score > state["best_log_abs"][0]
         best_log_abs = jnp.where(is_better, candidate_score, state["best_log_abs"][0])
         configuration = jnp.where(

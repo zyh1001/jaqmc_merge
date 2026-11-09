@@ -12,7 +12,8 @@ from jaqmc.array_types import Params
 from jaqmc.geometry.sphere import spinor_coordinates_from_angles
 from jaqmc.wavefunction.base import ComplexWFOutput, Wavefunction
 
-__all__ = ["HallWavefunction", "lll_monopole_harmonics"]
+__all__ = ["HallWavefunction"]
+__all__ += ["lll_monopole_harmonics"]
 
 
 def lll_monopole_harmonics(u: jnp.ndarray, v: jnp.ndarray, Q: float) -> jnp.ndarray:

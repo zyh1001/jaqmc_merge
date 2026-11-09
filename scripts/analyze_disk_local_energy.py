@@ -54,8 +54,13 @@ def inspect_run(run_dir: Path, checkpoint: Path | None) -> tuple[dict, Path, lis
         checkpoint = files[-1]
     checkpoint = checkpoint.resolve()
     system = config["system"]
-    if system["module"] != "jaqmc.app.hall.config.disk":
+    if system["module"] not in (
+        "jaqmc.app.hall.config:HallDiskConfig",
+        "jaqmc.app.hall.config.disk",
+        "jaqmc.app.hall.config.disk:HallDiskConfig",
+    ):
         raise ValueError("Expected the disk system configuration")
+    system["module"] = "jaqmc.app.hall.config:HallDiskConfig"
     potential = config["estimators"]["energy"]["potential"]
     for key, value in {
         "N": sum(system["nspins"]),
